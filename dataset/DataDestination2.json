@@ -16,7 +16,7 @@
 			"Data_Destination_Filename": {
 				"type": "string"
 			},
-			"Data_Destination_Timestamp\t": {
+			"Data_Destination_Timestamp": {
 				"type": "string"
 			}
 		},
