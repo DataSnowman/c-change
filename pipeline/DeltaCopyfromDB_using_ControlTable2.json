@@ -133,7 +133,7 @@
 								"value": "@{activity('LookupSourceWaterMarkColumn').output.firstRow.SourceTableName}",
 								"type": "Expression"
 							},
-							"Data_Destination_Timestamp\t": {
+							"Data_Destination_Timestamp": {
 								"value": "@{activity('LookupSourceWaterMarkColumn').output.firstRow.Timestamp}",
 								"type": "Expression"
 							}
