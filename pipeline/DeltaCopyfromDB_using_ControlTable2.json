@@ -51,7 +51,7 @@
 					"source": {
 						"type": "SqlSource",
 						"sqlReaderQuery": {
-							"value": "@concat('select MAX(',activity('LookupSourceWaterMarkColumn').output.firstRow.SourceWaterMarkColumn,') as NewWatermarkValue from SalesLT.Address')",
+							"value": "@concat('select MAX(',activity('LookupSourceWaterMarkColumn').output.firstRow.SourceWaterMarkColumn,') as NewWatermarkValue from ',activity('LookupSourceWaterMarkColumn').output.firstRow.SchemaTable)\n\n",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
@@ -191,7 +191,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "select * , SourceSchemaName+'.'+ SourceTableName as SchemaTable from @{pipeline().parameters.Control_Table_Name} where SourceSchemaName = 'SalesLT' and SourceTableName = 'Address'",
+							"value": "select * , SourceSchemaName+'.'+ SourceTableName as SchemaTable from @{pipeline().parameters.Control_Table_Name} where PartitionID = 1",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
