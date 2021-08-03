@@ -3,7 +3,7 @@
 	"properties": {
 		"description": "Connection to your destination data store.",
 		"linkedServiceName": {
-			"referenceName": "DeltaAdlsLS",
+			"referenceName": "AzureDataLakeStorage",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
@@ -19,6 +19,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@concat(dataset().Data_Destination_Filename,'_',dataset().Data_Destination_Timestamp,'.csv')",
+					"type": "Expression"
+				},
 				"folderPath": {
 					"value": "@{dataset().Data_Destination_Directory}",
 					"type": "Expression"
