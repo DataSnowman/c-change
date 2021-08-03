@@ -1,0 +1,9 @@
+{
+	"name": "cchc-changegjacp5rwplhceadf",
+	"location": "westus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "0834e284-5174-4c8f-8e54-45670a611c6d",
+		"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+	}
+}
