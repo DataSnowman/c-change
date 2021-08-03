@@ -1,5 +1,5 @@
 {
-	"name": "DeltaCopyfromDB_using_ControlTable2",
+	"name": "DeltaCopyfromDB_using_ControlTableSolo",
 	"properties": {
 		"description": "Copy new or updated rows only from database using external control table",
 		"activities": [
