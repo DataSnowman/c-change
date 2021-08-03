@@ -51,7 +51,7 @@
 					"source": {
 						"type": "SqlSource",
 						"sqlReaderQuery": {
-							"value": "@concat('select MAX(',activity('LookupSourceWaterMarkColumn').output.firstRow.SourceWaterMarkColumn,') as NewWatermarkValue from ',activity('LookupSourceWaterMarkColumn').output.firstRow.SchemaTable)\n\n",
+							"value": "@concat('select MAX(',activity('LookupSourceWaterMarkColumn').output.firstRow.SourceWaterMarkColumn,') as NewWatermarkValue from ',activity('LookupSourceWaterMarkColumn').output.firstRow.SchemaTable)",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
@@ -122,7 +122,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"Data_Destination_Container": {
-								"value": "@{activity('LookupSourceWaterMarkColumn').output.firstRow.DestinationContainer}b",
+								"value": "@{activity('LookupSourceWaterMarkColumn').output.firstRow.DestinationContainer}",
 								"type": "Expression"
 							},
 							"Data_Destination_Directory": {
@@ -199,7 +199,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "select * , SourceSchemaName+'.'+ SourceTableName as SchemaTable, concat(ProjectName,'/',SubjectArea,'/',SourceSystem,'/',SourceDatabase,'/',SourceSchemaName,'/',SourceTableName) as DestinationDirectory, GETDATE() as Timestamp from @{pipeline().parameters.Control_Table_Name} where PartitionID = 1",
+							"value": "select * , SourceSchemaName+'.'+ SourceTableName as SchemaTable, ProjectName+'/'+SubjectArea+'/'+SourceSystem+'/'+SourceDatabase+'/'+SourceSchemaName+'/'+SourceTableName as DestinationDirectory, GETDATE() as Timestamp from @{pipeline().parameters.Control_Table_Name} where PartitionID = 1",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
