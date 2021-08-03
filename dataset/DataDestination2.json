@@ -12,6 +12,12 @@
 			},
 			"Data_Destination_Directory": {
 				"type": "String"
+			},
+			"Data_Destination_Filename": {
+				"type": "string"
+			},
+			"Data_Destination_Timestamp\t": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
