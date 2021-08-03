@@ -30,11 +30,11 @@
 					"type": "Expression"
 				},
 				"folderPath": {
-					"value": "@{dataset().Data_Destination_Directory}",
+					"value": "dataset().Data_Destination_Directory",
 					"type": "Expression"
 				},
 				"fileSystem": {
-					"value": "@{dataset().Data_Destination_Container}",
+					"value": "@dataset().Data_Destination_Container",
 					"type": "Expression"
 				}
 			},
