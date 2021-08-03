@@ -160,6 +160,13 @@
 								"type": "Expression"
 							},
 							"type": "datetime"
+						},
+						"PartitionID": {
+							"value": {
+								"value": "@activity('LookupSourceWaterMarkColumn').output.firstRow.PartitionID",
+								"type": "Expression"
+							},
+							"type": "Int64"
 						}
 					}
 				},
