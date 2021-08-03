@@ -171,23 +171,23 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "DataDestination2",
+									"referenceName": "DataDestination",
 									"type": "DatasetReference",
 									"parameters": {
 										"Data_Destination_Container": {
-											"value": "@{activity('LookupSourceWaterMarkColumn').output.firstRow.DestinationContainer}",
+											"value": "@item().DestinationContainer",
 											"type": "Expression"
 										},
 										"Data_Destination_Directory": {
-											"value": "@{activity('LookupSourceWaterMarkColumn').output.firstRow.DestinationDirectory}",
+											"value": "@item().DestinationDirectory",
 											"type": "Expression"
 										},
 										"Data_Destination_Filename": {
-											"value": "@{activity('LookupSourceWaterMarkColumn').output.firstRow.SourceTableName}",
+											"value": "@item().SourceTableName",
 											"type": "Expression"
 										},
 										"Data_Destination_Timestamp": {
-											"value": "@{activity('LookupSourceWaterMarkColumn').output.firstRow.Timestamp}",
+											"value": "@item().Timestamp",
 											"type": "Expression"
 										}
 									}
@@ -252,7 +252,7 @@
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "select * , SourceSchemaName+'.'+ SourceTableName as SchemaTable, ProjectName+'/'+SubjectArea+'/'+SourceSystem+'/'+SourceDatabase+'/'+SourceSchemaName+'/'+SourceTableName as DestinationDirectory, GETDATE() as Timestamp from @{pipeline().parameters.Control_Table_Name} where PartitionID = @item().PartitionID\n",
+										"value": "select * , SourceSchemaName+'.'+ SourceTableName as SchemaTable, ProjectName+'/'+SubjectArea+'/'+SourceSystem+'/'+SourceDatabase+'/'+SourceSchemaName+'/'+SourceTableName as DestinationDirectory, GETDATE() as Timestamp from @{pipeline().parameters.Control_Table_Name} where PartitionID = @{item().PartitionID}\n",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
