@@ -18,7 +18,7 @@
 					"source": {
 						"type": "SqlSource",
 						"sqlReaderQuery": {
-							"value": "select @{pipeline().parameters.Control_Table_Column_Name} as WatermarkValue from @{pipeline().parameters.Control_Table_Table_Name}",
+							"value": "select WatermarkValue from @{pipeline().parameters.Control_Table_Name}",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
@@ -33,7 +33,14 @@
 				"name": "LookupCurrentWaterMark",
 				"description": "Retrieve  the current maximum value in watermark column of source data store",
 				"type": "Lookup",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "LookupSourceWaterMarkColumn",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -44,7 +51,7 @@
 					"source": {
 						"type": "SqlSource",
 						"sqlReaderQuery": {
-							"value": "@concat('select MAX(',pipeline().parameters.Data_Source_WaterMarkColumn, ') as NewWatermarkValue from ',pipeline().parameters.Data_Source_Table_Name)",
+							"value": "@concat('select MAX(',activity('LookupSourceWaterMarkColumn').output.firstRow.SourceWaterMarkColumn,') as NewWatermarkValue from SalesLT.Address')",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
@@ -52,7 +59,8 @@
 					"dataset": {
 						"referenceName": "AzureSqlDatabaseDataSource1",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": true
 				}
 			},
 			{
@@ -159,6 +167,34 @@
 					"referenceName": "DeltaLS",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "LookupSourceWaterMarkColumn",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select SourceWaterMarkColumn from @{pipeline().parameters.Control_Table_Name} where SourceSchemaName = 'SalesLT' and SourceTableName = 'Address'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlDatabaseDataSource1",
+						"type": "DatasetReference"
+					}
+				}
 			}
 		],
 		"parameters": {
@@ -174,7 +210,7 @@
 			"Data_Destination_Directory": {
 				"type": "String"
 			},
-			"Control_Table_Table_Name": {
+			"Control_Table_Name": {
 				"type": "String"
 			},
 			"Control_Table_Column_Name": {
