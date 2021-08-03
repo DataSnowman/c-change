@@ -91,7 +91,7 @@
 					"source": {
 						"type": "SqlSource",
 						"sqlReaderQuery": {
-							"value": "select * from @{pipeline().parameters.Data_Source_Table_Name} where @{pipeline().parameters.Data_Source_WaterMarkColumn} > '@{activity('LookupLastWaterMark').output.firstRow.WatermarkValue}' and @{pipeline().parameters.Data_Source_WaterMarkColumn} <= '@{activity('LookupCurrentWaterMark').output.firstRow.NewWatermarkValue}'",
+							"value": "select * from @{activity('LookupSourceWaterMarkColumn').output.firstRow.SchemaTable} where @{activity('LookupSourceWaterMarkColumn').output.firstRow.SourceWaterMarkColumn} > '@{activity('LookupLastWaterMark').output.firstRow.WatermarkValue}' and @{activity('LookupSourceWaterMarkColumn').output.firstRow.SourceWaterMarkColumn} <= '@{activity('LookupCurrentWaterMark').output.firstRow.NewWatermarkValue}'",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
@@ -184,7 +184,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "select SourceWaterMarkColumn from @{pipeline().parameters.Control_Table_Name} where SourceSchemaName = 'SalesLT' and SourceTableName = 'Address'",
+							"value": "select * , SourceSchemaName+'.'+ SourceTableName as SchemaTable from @{pipeline().parameters.Control_Table_Name} where SourceSchemaName = 'SalesLT' and SourceTableName = 'Address'",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
