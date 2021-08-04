@@ -460,7 +460,10 @@
 						"referenceName": "DelimitedTextControlTable",
 						"type": "DatasetReference",
 						"parameters": {
-							"Control_Table_Name": "@pipeline().parameters.Control_Table_Name"
+							"Control_Table_Name": {
+								"value": "@pipeline().parameters.Control_Table_Name",
+								"type": "Expression"
+							}
 						}
 					}
 				]
