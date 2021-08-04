@@ -52,7 +52,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('GetPartitionList').output.value",
+						"value": "@activity('GetPartitionListWatermark').output.value",
 						"type": "Expression"
 					},
 					"activities": [
@@ -317,7 +317,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('GetPartitionList').output.value",
+						"value": "@activity('GetPartitionListWithNoWatermark').output.value",
 						"type": "Expression"
 					},
 					"batchCount": 5,
