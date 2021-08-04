@@ -4,7 +4,7 @@
 		"description": "Copy new or updated rows only from database using external control table",
 		"activities": [
 			{
-				"name": "GetPartitionList",
+				"name": "GetPartitionListWatermark",
 				"description": "Lookup activity to retrieve the list of partitions stored in the external control table.",
 				"type": "Lookup",
 				"dependsOn": [],
@@ -43,7 +43,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "GetPartitionList",
+						"activity": "GetPartitionListWatermark",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -266,6 +266,204 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "GetPartitionListWithNoWatermark",
+				"description": "Lookup activity to retrieve the list of partitions stored in the external control table.",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlSource",
+						"sqlReaderQuery": {
+							"value": "select PartitionID, SourceTableName, FilterQuery, DestinationContainer, concat(ProjectName,'/',SubjectArea,'/',SourceSystem,'/',SourceDatabase,'/',SourceSchemaName,'/',SourceTableName) as DestinationDirectory, GETDATE() as Timestamp from @{pipeline().parameters.Control_Table_Name} where SourceWaterMarkColumn IS NULL",
+							"type": "Expression"
+						},
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlDatabaseExternal_ControlTable",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": {
+								"value": "@pipeline().parameters.Control_Table_Name",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEachPartition",
+				"description": "ForEach activity to get the partition list from Lookup activity and then iterate each of them to Copy activity. ",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "GetPartitionListWithNoWatermark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetPartitionList').output.value",
+						"type": "Expression"
+					},
+					"batchCount": 5,
+					"activities": [
+						{
+							"name": "CopyOnePartition",
+							"description": "Copy activity to copy each partition from source database store to destination store.",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "@item().FilterQuery",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".csv"
+									}
+								},
+								"enableStaging": false,
+								"dataIntegrationUnits": 0
+							},
+							"inputs": [
+								{
+									"referenceName": "AzureSqlTableAdworksLT",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DataDestination",
+									"type": "DatasetReference",
+									"parameters": {
+										"Data_Destination_Container": {
+											"value": "@item().DestinationContainer",
+											"type": "Expression"
+										},
+										"Data_Destination_Directory": {
+											"value": "@item().DestinationDirectory",
+											"type": "Expression"
+										},
+										"Data_Destination_Filename": {
+											"value": "@item().SourceTableName",
+											"type": "Expression"
+										},
+										"Data_Destination_Timestamp": {
+											"value": "@item().Timestamp",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "CopyControlTableToADLS",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "ForEachPartition",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select * from @{pipeline().parameters.Control_Table_Name}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".csv"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AzureSqlDatabaseExternal_ControlTable",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": {
+								"value": "@pipeline().parameters.Control_Table_Name",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DelimitedTextControlTable",
+						"type": "DatasetReference",
+						"parameters": {
+							"Control_Table_Name": "@pipeline().parameters.Control_Table_Name"
+						}
+					}
+				]
 			}
 		],
 		"parameters": {
